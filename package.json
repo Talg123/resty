@@ -1,14 +1,18 @@
 {
   "name": "restyts",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["rest", "api", "fast", "small"],
+  "author": "Tal Goldberg <tal-vr@hotmail.com>",
   "license": "ISC",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Talg123/resty"
+  },
   "files": [
     "lib/**/*"
   ],
