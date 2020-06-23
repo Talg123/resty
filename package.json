@@ -1,7 +1,7 @@
 {
   "name": "restyts",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "1.0.5",
+  "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -9,7 +9,12 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "files": [
+    "lib/**/*"
+  ],
   "dependencies": {
-    "@types/node": "^14.0.5"
+    "@types/busboy": "^0.2.3",
+    "@types/node": "^14.0.5",
+    "busboy": "^0.3.1"
   }
 }

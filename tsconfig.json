@@ -9,7 +9,7 @@
     "noUnusedParameters": false,
     "sourceMap": true,
     // "outFile": "./", 
-    "outDir": "./dist",
+    "outDir": "./lib",
     "rootDir": "./",
     "strictPropertyInitialization": false,
     "strict": true,  

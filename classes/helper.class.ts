@@ -1,5 +1,8 @@
-import { IMethodObject, IUrlParse, IPropertyIndex, IRouteParams, IUrlBody } from "../interfaces";
+import { IMethodObject, IUrlParse, IPropertyIndex, 
+    IRouteParams, IUrlBody, 
+    IRestyHandlers, IRestyRequest, IRestyResponse, IFileBody } from "../interfaces";
 import { ContentTypes, MULTIPART_DIVDER } from "../consts";
+import * as Busboy from 'busboy';
 
 export class RestyHelper {
     public static getUrlAndProperties(path: string): IPropertyIndex {
@@ -31,7 +34,7 @@ export class RestyHelper {
 
     private static getRouteParamsData(route: IMethodObject, path: string): IUrlParse {
         if (!Object.keys(route.properties).length) return {};
-        const pathArray = path.split('/'); 
+        const pathArray = path.split('?')[0].split('/').slice(1); 
         return Object.keys(route.properties)
                 .reduce((prv, crv) => ({...prv, [crv]: pathArray[route.properties[crv]]}),{});
     }
@@ -46,22 +49,55 @@ export class RestyHelper {
                     const currentValue = crv.split('=');
                     return {...prv, [currentValue[0]]: currentValue[1]};
                 },{});
-            case ContentTypes["multipart/form-data"]:
-                const bodyData: IUrlBody = {};
-                const parsedMultipart = data.split('\r\n');
-                for (let i = 0; i < parsedMultipart.length; i++) {
-                    if(parsedMultipart[i].includes(MULTIPART_DIVDER)) {
-                        const nameParsed = <string>parsedMultipart[i].split(MULTIPART_DIVDER).pop();
-                        try {
-                            bodyData[nameParsed.slice(0, -1)] = JSON.parse(parsedMultipart[i + 2]);
-                        } catch (error) {
-                            bodyData[nameParsed.slice(0, -1)] = parsedMultipart[i + 2];
-                        }
-                    }
-                }
-                return bodyData;
             default: 
                 return {};
         }
     }
+
+    public static async handleError(
+        handlers: IRestyHandlers[],
+        request: IRestyRequest,
+        response: IRestyResponse,
+        error: any): Promise<void> {
+        const handler = handlers.find(route => {
+            if (route.length === 4 && route.prototype.constructor.toString().includes('err')) 
+                return true;
+        })
+        if (handler)
+            await handler(request, response, () => {}, error);
+    }
+
+    public static async getMultipartData(req: IRestyRequest): Promise<IUrlBody> {
+        return new Promise(res => {
+            const data: IUrlBody = {};
+            const busboy = new Busboy.default({headers: req.headers});
+            busboy.on('file', (fieldname: string, file: NodeJS.ReadableStream, filename: string, encoding: string, mimetype: string) => {
+                if (!req.files) req.files = {};
+                const newFile: IFileBody = {
+                    filename,
+                    encoding,
+                    mimetype,
+                    data: Buffer.from('')
+                };
+                file.on('data', data => {
+                  newFile.data = Buffer.concat([newFile.data,data]);
+                });
+                file.on('end', () => {
+                    req.files[fieldname] = newFile;
+                });
+              });
+              busboy.on('field', (fieldname, val) => {
+                try {
+                    data[fieldname] = JSON.parse(val);
+                } catch (error) {
+                    data[fieldname] = val;
+                }
+              });
+              busboy.on('finish', () => {
+                res(data);
+              });
+              req.pipe(busboy);
+        })
+    }
+
 }

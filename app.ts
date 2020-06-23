@@ -1,6 +1,7 @@
 import { Server, createServer } from 'http';
-import { RestyRouter, RestyHelper } from './classes';
+import { RestyRouter, RestyHelper, HttpResponse } from './classes';
 import { Method, IUrlQuery, IRestyRequest, IUrlBody, IRestyHandlers, IRestyResponse } from './interfaces';
+import { ContentTypes } from './consts';
 
 export class RestyApp extends RestyRouter{
     private server: Server;
@@ -21,6 +22,7 @@ export class RestyApp extends RestyRouter{
     private init(): void {
         this.server = createServer(async (request, response) => {
             const req: any = request;
+            const res: any = response;
             const url = <string>request.url;
             const method: Method = <Method>request.method || 'GET';
             const endpoint = RestyHelper.getCurrentRoute(this._routes[method], url);
@@ -31,14 +33,12 @@ export class RestyApp extends RestyRouter{
             req.params = endpoint.params;
             if (this.createBodyData)
                 req.body = await this.getBodyData(<IRestyRequest>request);
+            res.send = new HttpResponse(res);
             try {
-                await this.executeCallbacks(endpoint.route.handlers, <IRestyRequest>req, response);
+                await this.executeCallbacks(endpoint.route.handlers, <IRestyRequest>req, <IRestyResponse>res);
             } catch (error) {
-                endpoint.route.handlers.find(route => {
-                    console.log(route.toString());
-                })
                 this.logger?.error(error);
-                response.end('ERROR');
+                RestyHelper.handleError(endpoint.route.handlers, req, res, error);
             }
         });
     }
@@ -64,6 +64,9 @@ export class RestyApp extends RestyRouter{
 
     private async getBodyData(request: IRestyRequest): Promise<IUrlBody> {
         const ctype = <string>request.headers["content-type"]?.split(';')[0];
+        if (ctype === ContentTypes["multipart/form-data"]) {
+            return await RestyHelper.getMultipartData(request);
+        }
         return new Promise((res) => {
             let data = '';
             request.on('data', chunk => {
@@ -85,12 +88,7 @@ export class RestyApp extends RestyRouter{
                 try {
                     await this.executeCallbacks(handlers.slice(i + 1), request, response); 
                 } catch (error) {
-                    const handler = handlers.find(route => {
-                        if (route.length === 4 && route.prototype.constructor.toString().includes('err')) 
-                            return true;
-                    })
-                    if (handler)
-                        await handler(request, response, () => {}, error);
+                    RestyHelper.handleError(handlers, request, response, error);
                 }
             });
     }
