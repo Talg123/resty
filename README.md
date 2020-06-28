@@ -1,4 +1,6 @@
 # RestyTS
+Lightweight small library for REST api.
+Have all kind of features out of the box!
 
 ## Install
 
