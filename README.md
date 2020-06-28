@@ -49,3 +49,11 @@ app.start();
 |port|the port the server will run on| 8000 |
 |createBodyData | parse body data, json/multipart/urlencoded with files data | false |
 |detectResponseTime| show in milliseconds how much time the whole endpoint took in the logger| false |
+
+
+## detectResponseTime
+that how it looks when you set it up to true:
+```
+[28/5/2020 08:36:47:59]: POST /:id [STARTED]
+[28/5/2020 08:36:47:65]: POST /:id [ENDED] -> took: 0.006
+```
