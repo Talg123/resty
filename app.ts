@@ -110,7 +110,7 @@ export class RestyApp extends RestyRouter {
         res.on('close', () => {
             const endTime: bigint = process.hrtime.bigint();
             const timediff = Number((endTime - startTime)) / 1000 / 1000000;
-            this.logger?.log(`[${RestyHelper.getCurrentDate()}]: ${method} ${route.route.url} [ENDED] -> took: ${timediff.toFixed(3)}`);
+            this.logger?.log(`[${RestyHelper.getCurrentDate()}]: ${method} ${route.route.url} [ENDED] -> took: ${timediff.toFixed(3)}s`);
         });
     }
 }

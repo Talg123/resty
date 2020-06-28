@@ -56,5 +56,5 @@ app.start();
 that how it looks when you set it up to true:
 ```
 [28/5/2020 08:36:47:59]: POST /:id [STARTED]
-[28/5/2020 08:36:47:65]: POST /:id [ENDED] -> took: 0.006
+[28/5/2020 08:36:47:65]: POST /:id [ENDED] -> took: 0.006s
 ```
