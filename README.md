@@ -16,7 +16,8 @@ const app = new RestyApp({
     logger: console,
     showRoutes: true,
     port: 8080,
-    createBodyData: true
+    createBodyData: true,
+    detectResponseTime: true
 });
 app.use((req, res ,next) => {
     // Do any kind of work;
@@ -45,3 +46,4 @@ app.start();
 |showRoutes| can have a list of all routes with their properties printed to the logger  | false | 
 |port|the port the server will run on| 8000 |
 |createBodyData | parse body data, json/multipart/urlencoded with files data | false |
+|detectResponseTime| show in milliseconds how much time the whole endpoint took in the logger| false |

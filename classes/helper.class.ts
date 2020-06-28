@@ -100,4 +100,14 @@ export class RestyHelper {
         })
     }
 
+    public static getCurrentDate(): string {
+        const date: any = new Date();
+        const lowLevelDate = ['Hours', 'Minutes', 'Seconds', 'Milliseconds'];
+        let currentTime = [];
+        for (let llDate of lowLevelDate) {
+            currentTime.push(date[`get${llDate}`]().toString().length > 1 ? date[`get${llDate}`]() : `0${date[`get${llDate}`]()}`);
+        }
+        return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} ${currentTime.join(':')}`;
+    }
+
 }

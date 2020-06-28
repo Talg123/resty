@@ -1,6 +1,6 @@
 import { Server, createServer } from 'http';
 import { RestyRouter, RestyHelper, HttpResponse } from './classes';
-import { Method, IUrlQuery, IRestyRequest, IUrlBody, IRestyHandlers, IRestyResponse } from './interfaces';
+import { Method, IUrlQuery, IRestyRequest, IUrlBody, IRestyHandlers, IRestyResponse, IRouteParams } from './interfaces';
 import { ContentTypes } from './consts';
 
 export class RestyApp extends RestyRouter{
@@ -9,13 +9,21 @@ export class RestyApp extends RestyRouter{
     private logger: any;
     private showRoutes: boolean;
     private createBodyData: boolean;
+    private detectResponseTime: boolean;
 
-     constructor(options?:{port?: number, logger?: any, showRoutes?: boolean, createBodyData?: boolean}) {
+     constructor(options?:{
+        port?: number, 
+        logger?: any, 
+        showRoutes?: boolean, 
+        createBodyData?: boolean,
+        detectResponseTime?: boolean
+    }) {
          super();
          this.port = options?.port || 8000;
          this.logger = options?.logger;
          this.showRoutes = options?.showRoutes || false;
          this.createBodyData = !!options?.createBodyData;
+         this.detectResponseTime = options?.detectResponseTime || false;
          this.init();
      }
 
@@ -34,6 +42,8 @@ export class RestyApp extends RestyRouter{
             if (this.createBodyData)
                 req.body = await this.getBodyData(<IRestyRequest>request);
             res.send = new HttpResponse(res);
+            if (this.detectResponseTime)
+                this.endpointTimeDetection(method, endpoint, res);
             try {
                 await this.executeCallbacks(endpoint.route.handlers, <IRestyRequest>req, <IRestyResponse>res);
             } catch (error) {
@@ -91,5 +101,15 @@ export class RestyApp extends RestyRouter{
                     RestyHelper.handleError(handlers, request, response, error);
                 }
             });
+    }
+
+    private endpointTimeDetection(method: string, route: IRouteParams, res: IRestyResponse): void {
+        const startTime: bigint = process.hrtime.bigint();
+        this.logger?.log(`[${RestyHelper.getCurrentDate()}]: ${method} ${route.route.url} [STARTED]`)
+        res.on('close', () => {
+            const endTime: bigint = process.hrtime.bigint();
+            const timediff = Number((endTime - startTime)) / 1000 / 1000000;
+            this.logger?.log(`[${RestyHelper.getCurrentDate()}]: ${method} ${route.route.url} [ENDED] -> took: ${timediff.toFixed(3)}`);
+        });
     }
 }
