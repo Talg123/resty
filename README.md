@@ -21,17 +21,18 @@ const app = new RestyApp({
     createBodyData: true,
     detectResponseTime: true
 });
-app.use((req, res ,next) => {
+app.use((req: IRestyRequest, res: IRestyResponse , next: IRestyNextFunction) => {
     // Do any kind of work;
     next();
 });
 
-app.get('/:id', (req, res, next) => {
+app.get('/:id', (req: IRestyRequest, res: IRestyResponse , next: IRestyNextFunction) => {
     console.log(req.body, req.query, req.params, req.files);
+    console.log(req.currentRoute);
     res.send.OK({"isWorking": true}, "Working!");
 })
 
-app.use((req, res, next, err) => {
+app.use((req: IRestyRequest, res: IRestyResponse , next: IRestyNextFunction, err: any) => {
     // Failed, received some error;
     res.send.SERVERERROR(err);
 })

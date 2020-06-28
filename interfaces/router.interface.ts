@@ -49,6 +49,7 @@ export interface IRestyRequest extends IncomingMessage {
     params: IUrlParse;
     body: IUrlBody;
     files: {[x:string]:IFileBody};
+    currentRoute: Omit<IMethodObject, 'handlers'>;
 }
 
 export interface IFileBody {

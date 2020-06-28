@@ -3,7 +3,7 @@ import { RestyRouter, RestyHelper, HttpResponse } from './classes';
 import { Method, IUrlQuery, IRestyRequest, IUrlBody, IRestyHandlers, IRestyResponse, IRouteParams } from './interfaces';
 import { ContentTypes } from './consts';
 
-export class RestyApp extends RestyRouter{
+export class RestyApp extends RestyRouter {
     private server: Server;
     private port: number;
     private logger: any;
@@ -38,6 +38,7 @@ export class RestyApp extends RestyRouter{
                 return response.end('No such endpoint');
             }
             req.query = this.getQueryData(url);
+            req.currentRoute = {url: endpoint.route.url, properties: endpoint.route.properties};
             req.params = endpoint.params;
             if (this.createBodyData)
                 req.body = await this.getBodyData(<IRestyRequest>request);
