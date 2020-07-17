@@ -45,9 +45,9 @@ export interface IRestyHandlers {
 export interface IRestyRequest extends IncomingMessage {
     [x: string]: any;
     [x: number]: any;
-    query: IUrlQuery;
-    params: IUrlParse;
-    body: IUrlBody;
+    query: IUrlQuery | any;
+    params: IUrlParse | any;
+    body: IUrlBody | any;
     files: {[x:string]:IFileBody};
     currentRoute: Omit<IMethodObject, 'handlers'>;
 }

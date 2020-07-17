@@ -40,7 +40,8 @@ export class RestyApp extends RestyRouter {
             req.query = this.getQueryData(url);
             req.currentRoute = {url: endpoint.route.url, properties: endpoint.route.properties};
             req.params = endpoint.params;
-            if (this.createBodyData)
+            req.body = {};
+            if (this.createBodyData && method !== 'GET')
                 req.body = await this.getBodyData(<IRestyRequest>request);
             res.send = new HttpResponse(res);
             if (this.detectResponseTime)
@@ -107,7 +108,7 @@ export class RestyApp extends RestyRouter {
     private endpointTimeDetection(method: string, route: IRouteParams, res: IRestyResponse): void {
         const startTime: bigint = process.hrtime.bigint();
         this.logger?.log(`[${RestyHelper.getCurrentDate()}]: ${method} ${route.route.url} [STARTED]`)
-        res.on('close', () => {
+        res.on('finish', () => {
             const endTime: bigint = process.hrtime.bigint();
             const timediff = Number((endTime - startTime)) / 1000 / 1000000;
             this.logger?.log(`[${RestyHelper.getCurrentDate()}]: ${method} ${route.route.url} [ENDED] -> took: ${timediff.toFixed(3)}s`);

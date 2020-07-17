@@ -1,6 +1,6 @@
 import { RestyApp } from './app';
 
-const app = new RestyApp({logger: console, showRoutes: true, createBodyData: true});
+const app = new RestyApp({logger: console, showRoutes: true, createBodyData: true, detectResponseTime: true});
 
 app.use((req, res ,next) => {
     req.body = {...req.body,"dd": "dddsdsdsdd"};

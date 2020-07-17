@@ -63,7 +63,6 @@ export class RestyRouter {
     private addRoutesFromRouterOrApp(routes: IRestyRoutes, path: string): void {
         for(let [method, endpoints] of Object.entries(routes)) {
             for (let route of endpoints) {
-                console.log(route);
                 this.addRoutes({method: <Method>method, path: `${path}${route.url}`, handlers: route.handlers })
             }
         }
